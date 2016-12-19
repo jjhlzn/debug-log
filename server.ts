@@ -31,7 +31,7 @@ module.exports = app;
 
 app.use(morgan('dev'));
 
-// Bootstrap models
+// Bootstrap models 
 
 fs.readdirSync(models)
   .filter(file => ~file.search(/^[^\.].*\.js$/))
