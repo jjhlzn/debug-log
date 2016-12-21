@@ -26,9 +26,7 @@ export class Application {
     this.parseTime = moment(time, 'YYYY-MM-DD HH:mm:ss');
     this.filePath = options["filePath"];
 
-    if (this.filePath === null || this.filePath === undefined) {
-      throw new Error("please config filePath");
-    }
+   
     
     this.lastParseLog = options["lastParseLog"] || '';
   }
