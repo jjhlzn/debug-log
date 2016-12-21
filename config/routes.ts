@@ -32,6 +32,7 @@ module.exports = function (app) {
   app.get('/api/v1/logs', logs.index);
 
   app.get('/api/v1/requests', requests.index);
+  app.get('/api/v1/requests/:id', requests.get);
 
 
   /**

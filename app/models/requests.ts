@@ -5,6 +5,7 @@
  */
 
 var mongoose = require('mongoose');
+var Log = mongoose.model('Log');
 var async = require('async');
 
 
@@ -38,6 +39,34 @@ RequestSchema.methods = {
 
 RequestSchema.statics = {
 
+  get: function(options, cb) {
+    this.findOne({_id: options.id}).exec( (err, doc) => {
+      if (err) {
+        console.error(err);
+        cb(500, null);
+        return;
+      }
+      //console.log("request: ", doc);
+      if (doc) {
+        Log.find({})
+          .where('time').gte(doc.startLog).lte(doc.endLog)
+          .where('thread').eq(doc.thread)
+          .sort({"_id":1})
+          .exec((err, logs) => {
+            //console.log("logs: ", logs);
+            if (err) {
+              console.error(err);
+              cb(500, null);
+              return;
+            }
+            cb(null, logs);
+          });
+      } else {
+        cb(404, null);
+      }
+    });
+  },
+
   /**
    * List articles
    *
@@ -53,7 +82,8 @@ RequestSchema.statics = {
     const limit = parseInt(options.pageLimit) || 10;
 
     var countQuery = (callback) => {
-         self.count().exec(function(err, count){
+         self.count()
+             .where('url').ne('/visitorbookcenter.aspx').exec(function(err, count){
               if(err){ 
                  callback(err, null) 
               }
@@ -66,6 +96,7 @@ RequestSchema.statics = {
 
     var retrieveQuery = (callback) => {
         self.find(criteria)
+            .where('url').ne('/visitorbookcenter.aspx')
             .limit(limit)
             .skip(limit * page)
             .exec(callback);
