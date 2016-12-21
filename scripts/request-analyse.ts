@@ -89,7 +89,9 @@ class RequestAnalyzer {
     });
     cursor.on("close", () => {
       console.log("read complete");
-      jsonfile.writeFileSync(file, self.app.toRequestJson());
+      setTimeout(()=> {
+          self.analyse();
+        }, 2000);
     });
 
   }
