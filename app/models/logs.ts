@@ -1,5 +1,4 @@
 'use strict';
-import * as console from 'console';
 
 /**
  * Module dependencies.

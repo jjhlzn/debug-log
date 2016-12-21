@@ -6,6 +6,7 @@ export class Application {
   _parsePosition: number
   lastParseLog: string
   parseTime: any
+  filePath: string
 
   get parsePosition():number {
     if (moment().format('YYYYMMDD') == this.parseTime.format('YYYYMMDD')) {
@@ -23,6 +24,11 @@ export class Application {
     this._parsePosition = options["parsePosition"] || 0;
     let time = options["parseTime"] || moment().format('YYYY-MM-DD HH:mm:ss');
     this.parseTime = moment(time, 'YYYY-MM-DD HH:mm:ss');
+    this.filePath = options["filePath"];
+
+    if (this.filePath === null || this.filePath === undefined) {
+      throw new Error("please config filePath");
+    }
     
     this.lastParseLog = options["lastParseLog"] || '';
   }
@@ -31,7 +37,8 @@ export class Application {
     return {
       name: this.name,
       parsePosition: this.parsePosition,
-      parseTime: this.parseTime.format('YYYY-MM-DD HH:mm:ss')
+      parseTime: this.parseTime.format('YYYY-MM-DD HH:mm:ss'),
+      filePath: this.filePath
     }
   }
 

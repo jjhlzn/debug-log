@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var assert = require('assert');
 
 mongoose.Promise = require('bluebird');
-var db = mongoose.createConnection('mongodb://localhost/debug_log');
+var db = mongoose.createConnection('mongodb://115.29.199.187/debug_log');
 
 var Log = db.model('Log', { 
   time:    String,   //2015-03-18 00:04:26,442

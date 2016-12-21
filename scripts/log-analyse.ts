@@ -76,7 +76,7 @@ class LogAnalyzer {
   * 每个项目的日志文件的存储路径是不一样的，所以这个地方应该是可配置的
   */
   getLogFilePath() {
-    return "/Users/jinjunhang/Desktop/log_root.txt";
+    return this.app.filePath;
   }
 }
 
