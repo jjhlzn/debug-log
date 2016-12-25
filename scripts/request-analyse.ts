@@ -39,8 +39,12 @@ class RequestAnalyzer {
       if (m == null) return;
 
       let ip = m[1], url = m[2];
+      let maxEndTime = moment(doc.time).add(1, 'm');
+      //console.log("start:", doc.time, ", end:", maxEndTime);
       Log.findOne({content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
-         thread: doc.thread, clazz: doc.clazz, "time": {$gt: doc.time}}).exec( (err, endLog) => {
+         thread: doc.thread, clazz: doc.clazz})
+         .where("time").gt(doc.time).lt(maxEndTime)
+         .sort({time: 1}).exec( (err, endLog) => {
         if (err) {
           console.log(err);
           return;
@@ -48,7 +52,9 @@ class RequestAnalyzer {
         //console.log("endLog:", endLog._id);
         if (endLog != null) {
           let duration = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').diff(moment(doc.time, 'YYYY-MM-DD HH:mm:ss,SSS'));
-          
+          if (duration > 1000 * 10) {
+            console.log("path:", doc.path, ", starttime:", doc.time, ", endtime:", endLog.time);
+          }
           let request = new Request({
             time: doc.time,
             ip: ip,
@@ -65,7 +71,7 @@ class RequestAnalyzer {
               console.log("err: ", err);
               return;
             }
-            console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
+            //console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
             self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
             jsonfile.writeFileSync(file, self.app.toRequestJson());
         });  

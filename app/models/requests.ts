@@ -63,7 +63,7 @@ export function getRequestModel(appName: string, date: string) {
   
       const criteria = options.criteria || {};
       const page = parseInt(options.page) - 1 || 0;
-      const limit = parseInt(options.pageLimit) || 10;
+      const limit = parseInt(options.pageLimit) || 20;
   
       var countQuery = (callback) => {
            self.count()
