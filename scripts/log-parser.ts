@@ -3,6 +3,7 @@
  * Copyright(c) 2009-2016 JIN junhang
  * MIT Licensed
  */
+var moment = require('moment');
 
 /**
  * parse log
@@ -11,18 +12,28 @@ export class LogParser {
 
   constructor(private db) {}
 
-  parse(logstr: string, app: any) {
-
-    var Log = this.db.model('Log', { 
-      time:    String,   //2015-03-18 00:04:26,442
+  models = {}
+  private getModel(log: any, app: any) {
+    let modelName = `logs_${app.name}_${moment(log.time).format('YYYY-MM-DD')}`;
+    if (this.models[modelName]) {
+      return this.models[modelName];
+    }
+    this.models[modelName]  = this.db.model(modelName, { 
+      time:    Date,   //2015-03-18 00:04:26,442
       level:   String,   //Debug
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
       thread: String    
-    }, "logs_"+app.name);
+    }, modelName);
+    return this.models[modelName];
+  }
 
+  parse(logstr: string, app: any) {
     const logs = this._parse(logstr);
-    return logs.map(log => new Log(log));
+    return logs.map(log => { 
+      let Log = this.getModel(log, app);
+      return new Log(log);
+    });
   }
 
   /** 
@@ -62,7 +73,7 @@ export class LogParser {
       }
       
       logs.push({
-        time:    m[1],
+        time:    moment(m[1], 'YYYY-MM-DD HH:mm:ss,SSS').toISOString(),
         thread:  m[2],
         level:   m[3],
         clazz:   m[4],

@@ -68,7 +68,11 @@ class LogAnalyzer {
 
   saveLogs(logs) {
     logs.forEach(log => {
-      log.save((err) => { if (err) console.error("err", err)} );
+      log.save((err) => { 
+        if (err) 
+          console.error("err", err);
+        //console.log("save complete!");
+        });
     });
   }
 

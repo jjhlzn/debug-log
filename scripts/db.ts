@@ -1,28 +1,60 @@
+import { print } from 'util';
 var mongoose = require('mongoose');
 var assert = require('assert');
 
 mongoose.Promise = require('bluebird');
 var db = mongoose.createConnection('mongodb://115.29.199.187/debug_log');
+var moment = require('moment');
 
-var Log = db.model('Log', { 
-  time:    String,   //2015-03-18 00:04:26,442
-  level:   String,   //Debug
-  clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
-  content: String    
-});
+var logModels = {};
+var requestModels = {};
 
-var log = new Log({
-  time: '2016-01-01',
-  level: 'DEBUG',
-  clazz: 'hd.order',
-  content: 'xxxxxxxxxxxxxx'
-});
+export function getLogModel(log: any, app: any) {
+    let modelName = `logs_${app.name}_${moment(log.time).format('YYYY-MM-DD')}`;
+    if (logModels[modelName]) {
+      return logModels[modelName];
+    }
+    logModels[modelName]  = db.model(modelName, { 
+      time:    Date,   //2015-03-18 00:04:26,442
+      level:   String,   //Debug
+      clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
+      content: String,
+      thread: String    
+    }, modelName);
+    return logModels[modelName];
+}
 
-log.save((err) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
+export function getLogModel2(app: any) {
+    let modelName = `logs_${app.name}_${moment().format('YYYY-MM-DD')}`;
+    if (logModels[modelName]) {
+      return logModels[modelName];
+    }
+    logModels[modelName]  = db.model(modelName, { 
+      time:    Date,   //2015-03-18 00:04:26,442
+      level:   String,   //Debug
+      clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
+      content: String,
+      thread: String    
+    }, modelName);
+    return logModels[modelName];
+}
 
-  console.log('save success');
-});
+export function getRequestModel(app: any) {
+    let modelName = `logs_${app.name}_${moment().format('YYYY-MM-DD')}`;
+    if (requestModels[modelName]) {
+      return requestModels[modelName];
+    }
+    requestModels[modelName]  = db.model(modelName, { 
+      time: String,
+      ip: String,
+      duration: Number,
+      url: String,
+      startLog: String,
+      endLog: String,
+      thread: String
+    }, modelName);
+    return requestModels[modelName];
+}
+
+
+

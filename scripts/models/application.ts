@@ -25,7 +25,7 @@ export class Application {
     let time = options["parseTime"] || moment().format('YYYY-MM-DD HH:mm:ss');
     this.parseTime = moment(time, 'YYYY-MM-DD HH:mm:ss');
     this.filePath = options["filePath"];
-
+    
     this.lastParseLog = options["lastParseLog"] || '';
   }
 

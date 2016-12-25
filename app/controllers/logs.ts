@@ -1,4 +1,4 @@
-import * as console from 'console';
+import { getLogModel } from '../models/logs';
 /**
  * Module dependencies.
  */
@@ -6,7 +6,8 @@ import * as console from 'console';
 var mongoose = require('mongoose');
 var url = require('url');
 var querystring = require('querystring');
-var Log = mongoose.model('Log');
+var moment = require('moment');
+
 
 /**
  * List
@@ -17,6 +18,11 @@ exports.index = (req, res) => {
 
   var params = querystring.parse(url.parse(req.url).query);
   console.log("query: ", params);
+
+  let date = params['date'] || '2016-12-23';
+  let app = params['app'] || 'test';
+
+  var Log = getLogModel(app, date);
 
   Log.list(params, (err, logs) => {
     if (err) {
