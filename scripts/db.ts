@@ -40,7 +40,7 @@ export function getLogModel2(app: any) {
 }
 
 export function getRequestModel(app: any) {
-    let modelName = `logs_${app.name}_${moment().format('YYYY-MM-DD')}`;
+    let modelName = `requests_${app.name}_${moment().format('YYYY-MM-DD')}`;
     if (requestModels[modelName]) {
       return requestModels[modelName];
     }
