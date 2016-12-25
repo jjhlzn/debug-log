@@ -2,13 +2,13 @@
 /**
  * Module dependencies.
  */
-
 var mongoose = require('mongoose');
-//var Log = mongoose.model('Log');
+mongoose.Promise = require('bluebird');
 var async = require('async');
 import { getLogModel } from './logs';
 
 var Schema = mongoose.Schema;
+var models = {};
 
 export function getRequestModel(appName: string, date: string) {
   let modelName = `requests_${appName}_${date}`;
@@ -17,12 +17,12 @@ export function getRequestModel(appName: string, date: string) {
   }
 
   const RequestSchema = new Schema({
-    time: { type : String, default : '', trim : true },
+    time: { type : Date },
     ip: { type : String, default : '', trim : true },
     duration: { type : Number, default : '', trim : true },
     url: { type : String, default : '', trim : true },
-    startLog: { type : String, default : '', trim : true },
-    endLog: { type : String, default : '', trim : true },
+    startLog: { type : Date },
+    endLog: { type : Date },
     thread: { type : String, default : '', trim : true }
   });
 
@@ -35,15 +35,16 @@ export function getRequestModel(appName: string, date: string) {
           cb(500, null);
           return;
         }
+        console.log("request: ", doc);
+
         let Log = getLogModel(appName, date);
-        //console.log("request: ", doc);
         if (doc) {
           Log.find({})
             .where('time').gte(doc.startLog).lte(doc.endLog)
             .where('thread').eq(doc.thread)
             .sort({"_id":1})
             .exec((err, logs) => {
-              //console.log("logs: ", logs);
+              console.log("logs: ", logs);
               if (err) {
                 console.error(err);
                 cb(500, null);
@@ -57,13 +58,6 @@ export function getRequestModel(appName: string, date: string) {
       });
     },
 
-    /**
-     * List articles
-     *
-     * @param {Object} options
-     * @api private
-     */
-  
     list: function (options, cb) {
       var self = this;
   
@@ -93,12 +87,6 @@ export function getRequestModel(appName: string, date: string) {
       };
   
       async.parallel([countQuery, retrieveQuery], function(err, results){
-           //err contains the array of error of all the functions
-           //results contains an array of all the results
-           //results[0] will contain value of doc.length from countQuery function
-           //results[1] will contain doc of retrieveQuery function
-           //You can send the results as
-  
           cb(err, {data: results[1], pageLimit: limit, page: page + 1, totalCount: results[0]});
       });
     }

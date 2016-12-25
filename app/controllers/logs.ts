@@ -19,19 +19,18 @@ exports.index = (req, res) => {
   var params = querystring.parse(url.parse(req.url).query);
   console.log("query: ", params);
 
-  let date = params['date'] || '2016-12-23';
-  let app = params['app'] || 'test';
+  let startTime = params['startTime'] || moment(moment().format('YYYY-MM-DD')).format('YYYY-MM-DD HH:mm:ss');
+  let endTime = params['endTime'] || moment().format('YYYY-MM-DD HH:mm:ss');
+  let app = params['app'] || 'order';
+  let date = moment(startTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD');
 
   var Log = getLogModel(app, date);
-
-  Log.list(params, (err, logs) => {
+  Log.list(params, (err, resp) => {
     if (err) {
       console.error(err);
       res.end();
     }
-    console.log("logs.count = ", logs.length);
-    //console.log(JSON.stringify(logs));
-    res.end(JSON.stringify(logs));
+    res.end(JSON.stringify(resp));
   });
 }
 

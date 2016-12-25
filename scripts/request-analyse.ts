@@ -5,7 +5,6 @@ import { Application } from './models/application';
 var file = '../../config/requests.json';
 var moment = require('moment');
 
-
 class RequestAnalyzer {
   app: any;
 
@@ -26,12 +25,11 @@ class RequestAnalyzer {
       cursor = Log.
       find({ content: /##############################################.*/ }).cursor();
     } else {
-      console.log('has parse time: ', new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS').toISOString()));
       cursor = Log.
-      find({ content: /##############################################.*/ }).
-      where('time').gt(new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS').toISOString())).cursor();
+                  find({ content: /##############################################.*/ }).
+                  where('time').gt(new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS').toISOString()))
+                  .cursor();
     }
-
 
     //真对每个开始标记，查询对应的结束的标记，然后纪录请求，纪录请求的开始日志和结束日志。
     cursor.on("data", (doc) => {
@@ -67,7 +65,7 @@ class RequestAnalyzer {
               console.log("err: ", err);
               return;
             }
-            console.log(doc.time, m[1], m[2]);
+            console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
             self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
             jsonfile.writeFileSync(file, self.app.toRequestJson());
         });  

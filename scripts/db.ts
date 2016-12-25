@@ -45,12 +45,12 @@ export function getRequestModel(app: any) {
       return requestModels[modelName];
     }
     requestModels[modelName]  = db.model(modelName, { 
-      time: String,
+      time: Date,
       ip: String,
       duration: Number,
       url: String,
-      startLog: String,
-      endLog: String,
+      startLog: Date,
+      endLog: Date,
       thread: String
     }, modelName);
     return requestModels[modelName];

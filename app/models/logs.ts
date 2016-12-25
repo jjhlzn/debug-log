@@ -2,6 +2,7 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
 var async = require('async');
 
 var Schema = mongoose.Schema;
