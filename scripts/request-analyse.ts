@@ -1,5 +1,5 @@
 import { db } from './models/models';
-import { getLogModel2, getRequestModel } from './db';
+import { getLogModel2, getRequestModel, getCappedRequestModel } from './db';
 var jsonfile = require('jsonfile');
 import { Application } from './models/application';
 var file = '../../config/requests.json';
@@ -7,17 +7,23 @@ var moment = require('moment');
 
 class RequestAnalyzer {
   app: any;
+  quering: boolean;
 
   constructor(config = {}) {
     this.app = new Application(config);
+    this.quering = false;
   }
 
   analyse() {
+    if (this.quering)
+      return;
+    this.quering = true;
     let self = this;
     //查询开始标志
     console.log("lastParseLog: ", this.app.lastParseLog);
     let Log = getLogModel2(this.app);
     let Request = getRequestModel(this.app);
+    let CappedRequest = getCappedRequestModel();
 
     let cursor = null;
 
@@ -65,22 +71,31 @@ class RequestAnalyzer {
             duration: duration
           });
 
-          //console.log("save request:", endLog._id);
+          let request2 = new CappedRequest(request);
+
           request.save(err => {
             if (err) {
               console.log("err: ", err);
               return;
             }
-            //console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
+            console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
             self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
             jsonfile.writeFileSync(file, self.app.toRequestJson());
-        });  
+          });
+
+          request2.save(err => {
+            if (err) {
+              console.log("err: ", err);
+              return;
+            }
+          });  
         } else {
           console.warn("can't find end log");
         }
       });
     });
     cursor.on("close", () => {
+      this.quering = false;     
       console.log("read db complete");
       setTimeout(()=> {
           self.analyse();

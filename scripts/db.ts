@@ -51,7 +51,23 @@ export function getRequestModel(app: any) {
       url: String,
       startLog: Date,
       endLog: Date,
-      thread: String
+      thread: String,
+      app: String
+    }, modelName);
+    return requestModels[modelName];
+}
+
+export function getCappedRequestModel() {
+    let modelName = `requests_capped`;
+    requestModels[modelName]  = db.model(modelName, { 
+      time: Date,
+      ip: String,
+      duration: Number,
+      url: String,
+      startLog: Date,
+      endLog: Date,
+      thread: String,
+      app: String
     }, modelName);
     return requestModels[modelName];
 }

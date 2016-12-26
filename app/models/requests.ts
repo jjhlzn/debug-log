@@ -81,6 +81,7 @@ export function getRequestModel(appName: string, date: string) {
       var retrieveQuery = (callback) => {
           self.find(criteria)
               .where('url').ne('/visitorbookcenter.aspx')
+              .sort({time: 1})
               .limit(limit)
               .skip(limit * page)
               .exec(callback);
