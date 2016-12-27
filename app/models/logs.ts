@@ -20,7 +20,8 @@ export function getLogModel(appName: string, date: string) {
     clazz: { type : String, default : '', trim : true },
     content: { type : String, default : '', trim : true },
     level: { type : String, default : '', trim : true },
-    thread: { type : String, default : '', trim : true }
+    thread: { type : String, default : '', trim : true },
+    app: { type : String, default : '', trim : true }
   });
   
   

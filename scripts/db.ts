@@ -19,7 +19,8 @@ export function getLogModel(log: any, app: any) {
       level:   String,   //Debug
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
-      thread: String    
+      thread: String,
+      app: String    
     }, modelName);
     return logModels[modelName];
 }
@@ -34,7 +35,8 @@ export function getLogModel2(app: any) {
       level:   String,   //Debug
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
-      thread: String    
+      thread: String,
+      app: String
     }, modelName);
     return logModels[modelName];
 }

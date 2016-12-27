@@ -23,7 +23,8 @@ export function getRequestModel(appName: string, date: string) {
     url: { type : String, default : '', trim : true },
     startLog: { type : Date },
     endLog: { type : Date },
-    thread: { type : String, default : '', trim : true }
+    thread: { type : String, default : '', trim : true },
+    app: { type : String, default : '', trim : true }
   });
 
   RequestSchema.statics = {
