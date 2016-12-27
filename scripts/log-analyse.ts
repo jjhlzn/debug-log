@@ -51,9 +51,10 @@ class LogAnalyzer {
           self.app.parsePosition += Buffer.byteLength(data, 'UTF-8');
           console.log('parsePosition: ', self.app.parsePosition);
           jsonfile.writeFileSync(file, self.app.toJson());
-          const logs = self.parser.parse(data, self.app);
+          const logsArray = self.parser.parse(data, self.app);
           //console.log("parse complete");
-          self.saveLogs(logs);
+          self.saveLogs(logsArray[0]);
+          self.saveLogs(logsArray[1]);
         })
         .on('end', () => {
           console.log("read complete.");

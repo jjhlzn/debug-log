@@ -41,7 +41,7 @@ exports.get = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   var params = querystring.parse(url.parse(req.url).query);
-  console.log("req.params: ", req.params);
+  console.log("params: ", params);
   let app = params['app'] || 'order';
   let date = params['date'] || moment().format('YYYY-MM-DD');
 

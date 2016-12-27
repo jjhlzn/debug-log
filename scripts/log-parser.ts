@@ -10,7 +10,17 @@ var moment = require('moment');
  */
 export class LogParser {
 
-  constructor(private db) {}
+  CappedLog: any;
+  constructor(private db) {
+    this.CappedLog = this.db.model('CappedLog', {
+      time:    Date,   //2015-03-18 00:04:26,442
+      level:   String,   //Debug
+      clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
+      content: String,
+      thread: String,
+      app: String
+    }, 'logs_capped');
+  }
 
   models = {}
   private getModel(log: any, app: any) {
@@ -29,11 +39,17 @@ export class LogParser {
   }
 
   parse(logstr: string, app: any) {
-    const logs = this._parse(logstr);
-    return logs.map(log => { 
+    let logs = this._parse(logstr);
+    logs = logs.map(log => { 
       let Log = this.getModel(log, app);
       return new Log(log);
     });
+    let logs2 = logs.map(log => {
+      let log0 = new this.CappedLog(log);
+      log0.app = app.name;
+      return log0;
+    });
+    return [logs, logs2];
   }
 
   /** 
