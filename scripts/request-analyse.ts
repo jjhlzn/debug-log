@@ -68,7 +68,8 @@ class RequestAnalyzer {
             startLog: doc.time,
             endLog: endLog.time,
             thread: doc.thread,
-            duration: duration
+            duration: duration,
+            app: this.app.name
           });
 
           let request2 = new CappedRequest(request);

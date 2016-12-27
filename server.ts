@@ -36,25 +36,33 @@ connect()
   .on('disconnected', connect)
   .once('open', listen);
 
-mongodb.MongoClient.connect (config.db, function (err, db) {
-  db.collection('requests_capped', function(err, collection) {
-    // open socket
-    io.sockets.on("connection", function (socket) {
-      // open a tailable cursor
-      console.log("== open tailable cursor");
-      collection.find({}, {tailable:true, awaitdata:true, numberOfRetries:-1})
-        .sort({ $natural: 1 })
-        .each(function(err, doc) {
-          console.log(doc);
-          // send message to client
-          if (doc.type == "message") {
-            socket.emit("message",doc);
-        }
+setupMongoSocketIO();
+
+function setupMongoSocketIO() {
+  mongodb.MongoClient.connect (config.db, function (err, db) {
+    db.collection('requests_capped', function(err, collection) {
+      // open socket
+      io.sockets.on("connection", function (socket) {
+        // open a tailable cursor
+        console.log("== open tailable cursor");
+        collection.find({}, {tailable:true, awaitdata:true, numberOfRetries:-1})
+          //.sort({ time: 1 })
+          .each(function(err, doc) {
+            console.log(doc);
+            // send message to client
+            //if (doc.type == "message") {
+            socket.emit("new request",doc);
+            //}
+        });
       });
     });
+  
+    db.on('error', (err) => {
+      console.log(err);
+      setupMongoSocketIO();
+    });
   });
-
-});
+}
 
 function listen () {
   if (app.get('env') === 'test') return;
