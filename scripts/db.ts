@@ -15,7 +15,7 @@ export function getLogModel(log: any, app: any) {
       return logModels[modelName];
     }
     logModels[modelName]  = db.model(modelName, { 
-      time:    {type: [Date],  index: true}, //2015-03-18 00:04:26,442
+      time:    {type: Date,  index: true}, //2015-03-18 00:04:26,442
       level:   String,   //Debug
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
@@ -47,7 +47,7 @@ export function getLogModel2(app: any) {
       return logModels[modelName];
     }
     logModels[modelName]  = db.model(modelName, { 
-      time:    {type: [Date],  index: true}, //2015-03-18 00:04:26,442
+      time:    {type: Date,  index: true}, //2015-03-18 00:04:26,442
       level:   String,   //Debug
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
@@ -63,7 +63,7 @@ export function getRequestModel(app: any) {
       return requestModels[modelName];
     }
     requestModels[modelName]  = db.model(modelName, { 
-      time:    {type: [Date],  index: true}, //2015-03-18 00:04:26,442
+      time:    {type: Date,  index: true}, //2015-03-18 00:04:26,442
       ip: String,
       duration: Number,
       url: String,
