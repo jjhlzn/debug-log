@@ -19,14 +19,17 @@ class RequestAnalyzer {
       return;
     this.working = true;
     let self = this;
+
     //查询开始标志
     console.log("lastParseLog: ", this.app.lastParseLog);
     let Log = getLogModel2(this.app);
     let Request = getRequestModel(this.app);
     let CappedRequest = getCappedRequestModel();
 
-    let cursor = null;
+    //如果需要的话，插入索引
+    
 
+    let cursor = null;
     if (this.app.lastParseLog === '') {
       cursor = Log.
       find({ content: /##############################################.*/ }).cursor();
