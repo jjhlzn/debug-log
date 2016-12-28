@@ -7,17 +7,17 @@ var moment = require('moment');
 
 class RequestAnalyzer {
   app: any;
-  quering: boolean;
+  working: boolean;
 
   constructor(config = {}) {
     this.app = new Application(config);
-    this.quering = false;
+    this.working = false;
   }
 
   analyse() {
-    if (this.quering)
+    if (this.working)
       return;
-    this.quering = true;
+    this.working = true;
     let self = this;
     //查询开始标志
     console.log("lastParseLog: ", this.app.lastParseLog);
@@ -96,7 +96,7 @@ class RequestAnalyzer {
       });
     });
     cursor.on("close", () => {
-      this.quering = false;     
+      this.working = false;     
       console.log("read db complete");
       setTimeout(()=> {
           self.analyse();
@@ -107,4 +107,10 @@ class RequestAnalyzer {
 }
 
 var config = jsonfile.readFileSync(file);
-new RequestAnalyzer(config).analyse();
+var analyzer = new RequestAnalyzer(config);
+analyzer.analyse();
+
+process.on('uncaughtException', (err) => {
+  console.log(`Caught exception: ${err}`);
+  setTimeout(analyzer.analyse, 5000);
+});

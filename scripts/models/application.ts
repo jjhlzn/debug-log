@@ -16,7 +16,12 @@ export class Application {
   } 
   set parsePosition(position:number) {
     this._parsePosition = position;
+    //这里需要注意，如果parseTime存在跨天的情况，那么需要将_parsePosition设置为0
+    let oldParseTime = this.parseTime;
     this.parseTime = moment();
+    if (this.parseTime.diff(oldParseTime, 'd') > 0) {
+      this._parsePosition = 0;
+    }
   }
 
   constructor(options={}) {

@@ -19,6 +19,7 @@ var file = '../../config/default.json';
  */
 class LogAnalyzer {
   app: Application
+  working: boolean
   /**
    * config: 传递给LogAnalyzer的配置信息
    * 例如：
@@ -32,9 +33,16 @@ class LogAnalyzer {
    */
   constructor(private parser: LogParser, config = {}) { 
     this.app = new Application(config);
+    this.working = false;
   }
 
   analyse() {
+    if (this.working) {
+      console.log("analyse is working now...");
+      return;
+    }
+
+    this.working = true;
 
     //3. 循环 
     //    3.1 读取日志内容
@@ -58,6 +66,7 @@ class LogAnalyzer {
         })
         .on('end', () => {
           console.log("read complete.");
+          this.working = false;
           setTimeout(()=> {
             self.analyse();
           }, 2000);
@@ -86,6 +95,13 @@ class LogAnalyzer {
 }
 
 var config = jsonfile.readFileSync(file);
-new LogAnalyzer(new LogParser(db), config).analyse();
+var analyzer = new LogAnalyzer(new LogParser(db), config);
+analyzer.analyse();
+
+process.on('uncaughtException', (err) => {
+  console.log(`Caught exception: ${err}`);
+  setTimeout(analyzer.analyse, 5000);
+});
+
 
 

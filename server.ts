@@ -38,8 +38,14 @@ connect()
 
 setupMongoSocketIO();
 
+
 function setupMongoSocketIO() {
   mongodb.MongoClient.connect (config.db, function (err, db) {
+    if (err) {
+      console.log("error:", err);
+      return;
+    }
+    
     db.collection('requests_capped', function(err, collection) {
       // open socket
       io.sockets.on("connection", function (socket) {
@@ -48,19 +54,37 @@ function setupMongoSocketIO() {
         collection.find({}, {tailable:true, awaitdata:true, numberOfRetries:-1})
           //.sort({ time: 1 })
           .each(function(err, doc) {
-            console.log(doc);
-            // send message to client
-            //if (doc.type == "message") {
+            if (err) {
+              console.log("requests_capped error:", err);
+              return;
+            }
+            //console.log(doc);
             socket.emit("new request",doc);
-            //}
+        });
+      });
+    });
+
+    db.collection('logs_capped', function(err, collection) {
+      // open socket
+      io.sockets.on("connection", function (socket) {
+        collection.find({}, {tailable:true, awaitdata:true, numberOfRetries:-1})
+          //.sort({ time: 1 })
+          .each(function(err, doc) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log("log:", doc);
+            //socket.emit("new log",doc);
         });
       });
     });
   
+   
     db.on('error', (err) => {
       console.log(err);
       setupMongoSocketIO();
-    });
+    }); 
   });
 }
 
