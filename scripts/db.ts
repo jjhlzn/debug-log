@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var assert = require('assert');
 
 mongoose.Promise = require('bluebird');
-var db = mongoose.createConnection('mongodb://115.29.199.187/debug_log');
+var db = mongoose.createConnection('mongodb://211.140.151.220/debug_log');
 var moment = require('moment');
 
 var logModels = {};

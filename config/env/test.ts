@@ -5,5 +5,5 @@
  */
 
 module.exports = {
-  db: 'mongodb://localhost/debug_log',
+  db: 'mongodb://211.140.151.220/debug_log',
 };

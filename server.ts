@@ -59,11 +59,14 @@ function setupMongoSocketIO() {
               return;
             }
             //console.log(doc);
+            //if (doc.app == 'order') {
             socket.emit("new request",doc);
+           // }
         });
       });
     });
 
+    /*
     db.collection('logs_capped', function(err, collection) {
       // open socket
       io.sockets.on("connection", function (socket) {
@@ -75,10 +78,10 @@ function setupMongoSocketIO() {
               return;
             }
             console.log("log:", doc);
-            //socket.emit("new log",doc);
+            socket.emit("new log",doc);
         });
       });
-    });
+    }); */
   
    
     db.on('error', (err) => {
