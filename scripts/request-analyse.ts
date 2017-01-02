@@ -18,6 +18,7 @@ class RequestAnalyzer {
     if (this.working)
       return;
     this.working = true;
+    
     let self = this;
 
     //查询开始标志
@@ -26,13 +27,10 @@ class RequestAnalyzer {
     let Request = getRequestModel(this.app);
     let CappedRequest = getCappedRequestModel();
 
-    //如果需要的话，插入索引
-    
-
     let cursor = null;
     if (this.app.lastParseLog === '') {
       cursor = Log.
-      find({ content: /##############################################.*/ }).cursor();
+                  find({ content: /##############################################.*/ }).cursor();
     } else {
       cursor = Log.
                   find({ content: /##############################################.*/ }).
@@ -49,7 +47,6 @@ class RequestAnalyzer {
 
       let ip = m[1], url = m[2];
       let maxEndTime = moment(doc.time).add(1, 'm');
-      //console.log("start:", doc.time, ", end:", maxEndTime);
       Log.findOne({content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
          thread: doc.thread, clazz: doc.clazz})
          .where("time").gt(doc.time).lt(maxEndTime)
@@ -61,6 +58,7 @@ class RequestAnalyzer {
         //console.log("endLog:", endLog._id);
         if (endLog != null) {
           let duration = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').diff(moment(doc.time, 'YYYY-MM-DD HH:mm:ss,SSS'));
+          //高延迟请求
           if (duration > 1000 * 10) {
             console.log("path:", doc.path, ", starttime:", doc.time, ", endtime:", endLog.time);
           }
@@ -84,6 +82,7 @@ class RequestAnalyzer {
             }
             console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
             self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
+            //TODO: 每次插入这个请求会造成解析变慢
             jsonfile.writeFileSync(file, self.app.toRequestJson());
           });
 
@@ -99,13 +98,12 @@ class RequestAnalyzer {
       });
     });
     cursor.on("close", () => {
-      this.working = false;     
+      self.working = false;     
       console.log("read db complete");
       setTimeout(()=> {
           self.analyse();
         }, 2000);
     });
-
   }
 }
 

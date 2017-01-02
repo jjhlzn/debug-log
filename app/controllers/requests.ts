@@ -1,3 +1,4 @@
+import { parse } from 'querystring';
 /**
  * Module dependencies.
  */
@@ -21,10 +22,26 @@ exports.index = (req, res) => {
   console.log("query: ", params);
   let startTime = params['startTime'] || moment(moment().format('YYYY-MM-DD')).format('YYYY-MM-DD HH:mm:ss');
   let endTime = params['endTime'] || moment().format('YYYY-MM-DD HH:mm:ss');
+
   let app = params['app'] || 'order';
   let date = moment(startTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD');
   
   var Request = getRequestModel(app, date);
+  
+
+  params.criteria = {
+    time: { "$gte": startTime, "$lte": endTime}
+  };
+
+  if (params.content) {
+    if (params.contentType === 'url') {
+      params.criteria.url = new RegExp(`${params.content}`);
+    } else if (params.contentType === 'content') {
+      
+    }
+  }
+
+  console.log("criteria: ", params.criteria);
 
   Request.list(params, (err, resp) => {
     if (err) {

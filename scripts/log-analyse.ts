@@ -12,6 +12,7 @@ import { db } from './models/models';
 var jsonfile = require('jsonfile');
 import { Application } from './models/application';
 var file = '../../config/default.json';
+var moment = require('moment');
 
 /**
  * 改脚本从日志文件中读取日志，解析日志，把解析的日志存储到mongodb，同时，需要把
@@ -43,6 +44,16 @@ class LogAnalyzer {
     }
 
     this.working = true;
+
+    //每天的前2分钟，检查文件大小和解析的大小
+    let now = moment();
+    //console.log("now.hour() === 0 && now.minute() < 5: ", now.hour() === 0 && now.minute() < 5);
+    if (now.hour() === 0 && now.minute() < 5) {
+      let fileStat = fs.statSync(self.getLogFilePath());
+      if (fileStat.size < this.app.parsePosition) {
+        this.app.parsePosition = 0;
+      }
+    }
 
     //3. 循环 
     //    3.1 读取日志内容

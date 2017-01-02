@@ -67,13 +67,13 @@ export function getRequestModel(appName: string, date: string) {
       const limit = parseInt(options.pageLimit) || 20;
   
       var countQuery = (callback) => {
-           self.count()
+           self.count(criteria)
                .where('url').ne('/visitorbookcenter.aspx').exec(function(err, count){
                 if(err){ 
                    callback(err, null) 
                 }
                 else {
-                  //console.log(results);
+                    console.log("count: ", count);
                    callback(null, count);
                 }
            })
