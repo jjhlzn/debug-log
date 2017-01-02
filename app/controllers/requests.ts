@@ -35,9 +35,10 @@ exports.index = (req, res) => {
 
   if (params.content) {
     if (params.contentType === 'url') {
-      params.criteria.url = new RegExp(`${params.content}`);
+      //params.criteria.url = new RegExp(`${params.content}`);
+      params.criteria["logs.content"] = new RegExp(`${params.content}`);
     } else if (params.contentType === 'content') {
-      
+      params.criteria.logs.content = new RegExp(`${params.content}`);
     }
   }
 

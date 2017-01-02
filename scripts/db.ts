@@ -1,3 +1,4 @@
+import * as console from 'console';
 import { print } from 'util';
 var mongoose = require('mongoose');
 var assert = require('assert');
@@ -59,6 +60,7 @@ export function getLogModel2(app: any) {
 
 export function getRequestModel(app: any) {
     let modelName = `requests_${app.name}_${moment().format('YYYY-MM-DD')}`;
+    console.log("modelName:", modelName);
     if (requestModels[modelName]) {
       return requestModels[modelName];
     }
@@ -70,7 +72,8 @@ export function getRequestModel(app: any) {
       startLog: Date,
       endLog: Date,
       thread: String,
-      app: String
+      app: String,
+      logs: [{ time: Date, level: String,  clazz: String, content: String, thread: String}]
     }, modelName);
     return requestModels[modelName];
 }
