@@ -2,3 +2,6 @@ build/
 node_modules/
 config/default.json
 config/requests.json
+benchmark/logs/
+benchmark/log_root.txt
+npm-debug.log

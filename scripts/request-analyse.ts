@@ -55,7 +55,7 @@ class RequestAnalyzer {
           console.log(err);
           return;
         }
-        //console.log("endLog:", endLog._id);
+
         if (endLog != null) {
           let duration = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').diff(moment(doc.time, 'YYYY-MM-DD HH:mm:ss,SSS'));
           //高延迟请求
@@ -74,13 +74,12 @@ class RequestAnalyzer {
           });
 
           let request2 = new CappedRequest(request);
-
           request.save(err => {
             if (err) {
               console.log("err: ", err);
               return;
             }
-            console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
+            //console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
             self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
             //TODO: 每次插入这个请求会造成解析变慢
             jsonfile.writeFileSync(file, self.app.toRequestJson());
@@ -93,7 +92,7 @@ class RequestAnalyzer {
             }
           });  
         } else {
-          console.warn("can't find end log");
+          console.warn("can't find end log: ", doc);
         }
       });
     });
@@ -104,6 +103,13 @@ class RequestAnalyzer {
           self.analyse();
         }, 2000);
     });
+  }
+
+  /**
+   * 当analyse的分析比较的情况下，有些日志很长的
+   */
+  checkAnalyse() {
+
   }
 }
 
