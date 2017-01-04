@@ -18,14 +18,14 @@ describe("LogParser", () => {
     const logs = logParser._parse(logstr);
     expect(logs.length).to.be.equal(4);
     expect(JSON.stringify(logs[0])).to.be.equal(JSON.stringify({
-      time: '2015-03-18 00:04:26,442',
+      time: '2015-03-17T16:04:26.442Z',
       thread: '1',
       level: 'DEBUG',
       clazz: 'HDBusiness.BLL.AlipayInfoBLL',
       content: 'table.rowcount = 1'
     }));
     expect(JSON.stringify(logs[3])).to.be.equal(JSON.stringify({
-      time: '2015-03-18 00:04:26,445',
+      time: '2015-03-17T16:04:26.445Z',
       thread: '1',
       level: 'DEBUG',
       clazz: 'HDBusiness.BLL.AlipayInfoBLL',

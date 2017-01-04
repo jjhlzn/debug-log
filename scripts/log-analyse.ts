@@ -45,10 +45,10 @@ class LogAnalyzer {
 
     this.working = true;
 
-    //每天的前2分钟，检查文件大小和解析的大小
+    //每天的前30分钟，检查文件大小和解析的大小
     let now = moment();
     //console.log("now.hour() === 0 && now.minute() < 5: ", now.hour() === 0 && now.minute() < 5);
-    if (now.hour() === 0 && now.minute() < 5) {
+    if (now.hour() === 0 && now.minute() < 30) {
       let fileStat = fs.statSync(self.getLogFilePath());
       if (fileStat.size < this.app.parsePosition) {
         this.app.parsePosition = 0;
@@ -111,7 +111,10 @@ analyzer.analyse();
 
 process.on('uncaughtException', (err) => {
   console.log(`Caught exception: ${err}`);
-  setTimeout(analyzer.analyse, 5000);
+  setTimeout(()=> {
+    var analyzer = new LogAnalyzer(new LogParser(db), config);
+    analyzer.analyse();
+  }, 5000);
 });
 
 
