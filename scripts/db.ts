@@ -45,7 +45,8 @@ export function getLogModel(log: any, app: any) {
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
       thread: String,
-      app: String    
+      app: String,
+      reqId: String    
     }, modelName);
     return logModels[modelName];
 }
@@ -61,7 +62,7 @@ export function getCappedLogModel() {
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
       thread: String,
-      app: String
+      app: String,
     }, modelName);
   return requestModels[modelName];
 }
@@ -77,7 +78,8 @@ export function getLogModel2(app: any) {
       clazz:   String,   //HDBusiness.BLL.AlipayInfoBLL
       content: String,
       thread: String,
-      app: String
+      app: String,
+      reqId: String
     }, modelName);
     return logModels[modelName];
 }

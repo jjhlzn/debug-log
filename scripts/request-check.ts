@@ -32,6 +32,7 @@ class RequestAnalyzer {
 
     cursor = Log.
                 find({ content: /##############################################.*/ }).
+                where('reqId').eq(null).
                 where('time').gt(moment().subtract(3, 'm').toISOString()).lt((moment().subtract(10, 's').toISOString()))
                 .cursor();
     
@@ -66,7 +67,8 @@ class RequestAnalyzer {
         //这是一个漏过的请求的
 
         let options = {content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
-         thread: doc.thread, clazz: doc.clazz, time: {$gte: doc.time, $lte: maxEndTime}};
+         thread: doc.thread, clazz: doc.clazz, time: {$gte: new Date(doc.time), $lte: new Date(maxEndTime)}};
+         console.log(options);
         Log.findOne(options)
            .sort({time: 1}).exec( (err, endLog) => {
           if (err) {

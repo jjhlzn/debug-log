@@ -23,8 +23,7 @@ export class RequestLogBind {
     let self = this;
     //获取当前未绑定的请求
     let Request = getRequestModel(this.app);
-
-    let cursor = Request.find().sort({time: 1}).cursor();
+    let cursor = Request.find({logs: {$size: 0 }}).sort({time: 1}).cursor();
 
     //对每个未绑定的请求，设置其相关的日志
     cursor.on("data", (request) => {
@@ -68,7 +67,23 @@ export class RequestLogBind {
             }
             console.log("save success:", moment(req.time).format('YYYY-MM-DD HH:mm:ss,SSS'));
             //console.log(req);
-          })
+          });
+          
+          let options = {time: {$gte: req.startLog, $lte: req.endLog}, thread: req.thread };
+          console.log(JSON.stringify(options));
+          Log.update({time: {$gte: req.startLog, $lte: req.endLog}, thread: req.thread },
+             { $set: { reqId: req._id }}, {multi: true}).exec( (err) => {
+               if (err) {
+                 console.log(err);
+                 return;
+               }
+               console.log("update logs success");
+             });
+          /*
+          logs.forEach( log => {
+            log.reqId = req._id;
+            log.save();
+          });*/
        });
   }
 }
