@@ -1,4 +1,3 @@
-import { db } from './models/models';
 import { getLogModel2, getRequestModel, getCappedRequestModel } from './db';
 var jsonfile = require('jsonfile');
 import { Application } from './models/application';
@@ -8,26 +7,31 @@ var moment = require('moment');
 class RequestAnalyzer {
   app: any;
   working: boolean;
+  checking: boolean;
 
   constructor(config = {}) {
     this.app = new Application(config);
     this.working = false;
+    this.checking = false;
   }
 
   analyse() {
-    if (this.working)
+    if (this.working) {
+      console.log("analyse is working, return");
       return;
+    }
     this.working = true;
     
     let self = this;
 
     //查询开始标志
-    console.log("lastParseLog: ", this.app.lastParseLog);
+    //console.log("lastParseLog: ", this.app.lastParseLog);
     let Log = getLogModel2(this.app);
     let Request = getRequestModel(this.app);
     let CappedRequest = getCappedRequestModel();
 
     let cursor = null;
+
     if (this.app.lastParseLog === '') {
       cursor = Log.
                   find({ content: /##############################################.*/ }).cursor();
@@ -37,7 +41,7 @@ class RequestAnalyzer {
                   where('time').gt(new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS').toISOString()))
                   .cursor();
     }
-
+ 
     //真对每个开始标记，查询对应的结束的标记，然后纪录请求，纪录请求的开始日志和结束日志。
     cursor.on("data", (doc) => {
       let regex = new RegExp("^##############################################IP: (.+)#(.+) 开始处理##############################################");
@@ -47,9 +51,14 @@ class RequestAnalyzer {
 
       let ip = m[1], url = m[2];
       let maxEndTime = moment(doc.time).add(1, 'm');
-      Log.findOne({content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
-         thread: doc.thread, clazz: doc.clazz})
-         .where("time").gt(doc.time).lt(maxEndTime)
+
+      let options = {content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
+         thread: doc.thread, clazz: doc.clazz, time: {$gte: doc.time, $lte: maxEndTime}};
+      
+      Log.findOne(options)
+      //Log.findOne({content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
+        // thread: doc.thread, clazz: doc.clazz})
+        // .where("time").gte(doc.time).lte(maxEndTime)
          .sort({time: 1}).exec( (err, endLog) => {
         if (err) {
           console.log(err);
@@ -92,24 +101,18 @@ class RequestAnalyzer {
             }
           });  
         } else {
-          console.warn("can't find end log: ", doc);
+          console.warn("can't find end log: ", moment(doc.time).format('HH:mm:ss,SSS'), url);
+          console.log("options: ", JSON.stringify(options));
         }
       });
     });
     cursor.on("close", () => {
       self.working = false;     
-      console.log("read db complete");
+      //console.log("read db complete");
       setTimeout(()=> {
           self.analyse();
         }, 2000);
     });
-  }
-
-  /**
-   * 当analyse的分析比较的情况下，有些日志很长的
-   */
-  checkAnalyse() {
-
   }
 }
 
@@ -119,5 +122,8 @@ analyzer.analyse();
 
 process.on('uncaughtException', (err) => {
   console.log(`Caught exception: ${err}`);
-  setTimeout(analyzer.analyse, 5000);
+  setTimeout(() => {
+    var analyzer = new RequestAnalyzer(config);
+    analyzer.analyse();
+  }, 5000);
 });

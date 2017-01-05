@@ -1,11 +1,35 @@
-import * as console from 'console';
 import { print } from 'util';
 var mongoose = require('mongoose');
 var assert = require('assert');
+var moment = require('moment');
+
+var db = mongoose.connection;
+var dbURI = 'mongodb://114.215.170.159/debug_log';
+db.on('connecting', function() {
+  console.log('connecting to MongoDB...');
+});
+
+db.on('error', function(error) {
+  console.error('Error in MongoDb connection: ' + error);
+  mongoose.disconnect();
+});
+db.on('connected', function() {
+  console.log('MongoDB connected!');
+});
+db.once('open', function() {
+  console.log('MongoDB connection opened!');
+});
+db.on('reconnected', function () {
+  console.log('MongoDB reconnected!');
+});
+db.on('disconnected', function() {
+  console.log('MongoDB disconnected!');
+  mongoose.connect(dbURI, {server:{auto_reconnect:true}});
+});
 
 mongoose.Promise = require('bluebird');
-var db = mongoose.createConnection('mongodb://114.215.170.159/debug_log');
-var moment = require('moment');
+mongoose.connect(dbURI, {server:{auto_reconnect:true}});
+
 
 var logModels = {};
 var requestModels = {};

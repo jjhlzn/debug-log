@@ -45,7 +45,7 @@ export function getLogModel(appName: string, date: string) {
       let page = parseInt(options.page) - 1 || 0;
       const limit = parseInt(options.pageLimit) || 10;
       var countQuery = (callback) => {
-           self.count().exec(function(err, count){
+           self.count(criteria).exec(function(err, count){
                 if(err){ 
                    callback(err, null) 
                 }
@@ -63,12 +63,6 @@ export function getLogModel(appName: string, date: string) {
       };
   
       async.parallel([countQuery, retrieveQuery], function(err, results){
-           //err contains the array of error of all the functions
-           //results contains an array of all the results
-           //results[0] will contain value of doc.length from countQuery function
-           //results[1] will contain doc of retrieveQuery function
-           //You can send the results as
-          
           cb(err, {data: results[1], pageLimit: limit, page: page + 1, totalCount: results[0]});
       });
     }

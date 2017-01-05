@@ -24,6 +24,14 @@ exports.index = (req, res) => {
   let app = params['app'] || 'order';
   let date = moment(startTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD');
 
+  params.criteria = {
+    time: { "$gte": startTime, "$lte": endTime}
+  };
+
+  if (params.content) {
+    params.criteria["content"] = new RegExp(`${params.content}`);
+  }
+
   var Log = getLogModel(app, date);
   Log.list(params, (err, resp) => {
     if (err) {
