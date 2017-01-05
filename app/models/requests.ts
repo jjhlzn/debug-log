@@ -81,6 +81,7 @@ export function getRequestModel(appName: string, date: string) {
   
       var retrieveQuery = (callback) => {
           self.find(criteria)
+              .select("_id time startLog endLog ip duration thread app url")
               .where('url').ne('/visitorbookcenter.aspx')
               .sort({time: 1})
               .limit(limit)
