@@ -72,7 +72,7 @@ class RequestAnalyzer {
           setTimeout(()=> {
             self.findEndLog(log, 1);
           }, 3000);
-        } if (retry === 1) {
+        } else if (retry === 1) {
           setTimeout(()=> {
             self.findEndLog(log, 2);
           }, 20000);
