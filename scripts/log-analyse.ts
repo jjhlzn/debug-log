@@ -38,13 +38,15 @@ class LogAnalyzer {
   }
 
   analyse() {
+     var self = this;
     if (this.working) {
       console.log("analyse is working now...");
       return;
     }
+    let parsedLines = 0;
 
     this.working = true;
-
+    console.log('parsePosition: ', self.app.parsePosition);
     //每天的前30分钟，检查文件大小和解析的大小
     let now = moment();
     //console.log("now.hour() === 0 && now.minute() < 5: ", now.hour() === 0 && now.minute() < 5);
@@ -60,7 +62,7 @@ class LogAnalyzer {
     //    3.2 解析日志
     //    3.3 将解析的日志保存到mongodb
     //    3.4 更新文件的解析日志
-    var self = this;
+   
     var readStream = fs.createReadStream(self.getLogFilePath(),  {start: this.app.parsePosition, flags: 'r'});
     readStream.setEncoding('UTF-8');
     readStream
@@ -68,21 +70,25 @@ class LogAnalyzer {
           //console.log(`new log data: ${data}`);
           //console.log('--------------------------------------------------------------');
           self.app.parsePosition += Buffer.byteLength(data, 'UTF-8');
-          console.log('parsePosition: ', self.app.parsePosition);
-          jsonfile.writeFileSync(file, self.app.toJson());
           const logsArray = self.parser.parse(data, self.app);
+          //console.log(JSON.stringify(logsArray));
+          parsedLines += logsArray[0].length;
+          //console.log("parse log lines: ", parsedLines);
           //console.log("parse complete");
           self.saveLogs(logsArray[0]);
           self.saveLogs(logsArray[1]);
         })
         .on('end', () => {
-          console.log("read complete.");
+          jsonfile.writeFileSync(file, self.app.toJson());
+          //console.log("parse log lines: ", parsedLines);
+          //console.log("read complete.");
           this.working = false;
           setTimeout(()=> {
             self.analyse();
-          }, 2000);
+          }, 10);
         })
         .on('error', (err) => {
+          jsonfile.writeFileSync(file, self.app.toJson());
           console.error("readStream err", err);
         });
   }
@@ -111,6 +117,7 @@ analyzer.analyse();
 
 process.on('uncaughtException', (err) => {
   console.log(`Caught exception: ${err}`);
+  jsonfile.writeFileSync(file, analyzer.app.toJson());
   setTimeout(()=> {
     var analyzer = new LogAnalyzer(new LogParser(db), config);
     analyzer.analyse();

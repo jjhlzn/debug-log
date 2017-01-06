@@ -22,7 +22,49 @@ class RequestAnalyzer {
     }
   }
 
-  private findEndLog(log: any, retry:number=0) {
+  handleStartLogs: any = (err, logs) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    logs.forEach(log => {
+      this.findEndLog(log);
+    });
+
+    //结束处理
+    this.working = false;
+    setTimeout(()=> {
+          this.analyse();
+    }, 1000);
+  }
+
+  analyse() {
+    if (this.working) {
+      console.log("analyse is working, return");
+      return;
+    }
+    this.working = true;
+    
+    let self = this;
+    //查询开始标志
+    console.log("lastParseLog: ", this.app.lastParseLog);
+    let Log = getLogModel2(this.app);
+    let Request = getRequestModel(this.app);
+    let CappedRequest = getCappedRequestModel();
+
+    if (this.app.lastParseLog === '') {
+      Log.find({ content: /##############################################.*/ })
+                  .sort({time: 1})
+                  .exec(this.handleStartLogs);
+    } else {
+      Log.find({ content: /##############################################.*/ })
+                  .where('time').gt(new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS')))
+                  .sort({time: 1})
+                  .exec(this.handleStartLogs);
+    }
+  }
+
+   private findEndLog(log: any, retry:number=0) {
     let self = this;
     let Log = getLogModel2(this.app);
     let Request = getRequestModel(this.app);
@@ -59,14 +101,30 @@ class RequestAnalyzer {
           app: this.app.name
         });
 
-        //console.log(moment(log.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
+        console.log(moment(log.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
         self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
         //TODO: 每次插入这个请求会造成解析变慢，将解析位置同步到文件中去
         jsonfile.writeFileSync(file, self.app.toRequestJson());
 
         let request2 = new CappedRequest(request);
-        request.save(this.errorHandler);
-        request2.save(this.errorHandler);  
+
+        //检查是否这个log请求已经保存过了
+        Request.find({
+            time: request.time,
+            thread: request.thread,
+            url: request.url
+          }).exec((err, result) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            if (result && result.length > 0) {
+              //console.log("request has saved: ", result._id, request.time, request.url, result);
+            } else {
+              request.save(this.errorHandler);
+              request2.save(this.errorHandler);
+            }
+          });
       } else {
         if (retry === 0) {
           setTimeout(()=> {
@@ -85,31 +143,30 @@ class RequestAnalyzer {
       }
     });
   }
+}
 
-  analyse() {
-    if (this.working) {
-      console.log("analyse is working, return");
-      return;
-    }
-    this.working = true;
-    
-    let self = this;
+var config = jsonfile.readFileSync(file);
+var analyzer = new RequestAnalyzer(config);
+analyzer.analyse();
 
-    //查询开始标志
-    //console.log("lastParseLog: ", this.app.lastParseLog);
-    let Log = getLogModel2(this.app);
-    let Request = getRequestModel(this.app);
-    let CappedRequest = getCappedRequestModel();
+process.on('uncaughtException', (err) => {
+  console.log(`Caught exception: ${err}`);
+  analyzer.working = false;
+  setTimeout(() => {
+    analyzer.analyse();
+  }, 5000);
+});
 
+
+    /*
     let cursor = null;
-
     if (this.app.lastParseLog === '') {
-      cursor = Log.find({ content: /##############################################.*/ })
-                  .sort({time: 1})
+      cursor = Log.find({ content: /##############################################.*/// })
+    /*              .sort({time: 1})
                   .cursor();
     } else {
-      cursor = Log.find({ content: /##############################################.*/ })
-                  .where('time').gt(new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS')))
+      cursor = Log.find({ content: /##############################################.*/ //})
+    /*              .where('time').gt(new Date(moment(this.app.lastParseLog, 'YYYY-MM-DD HH:mm:ss,SSS')))
                   .sort({time: 1})
                   .cursor();
     }
@@ -119,22 +176,9 @@ class RequestAnalyzer {
       this.findEndLog(log);
     });
     cursor.on("close", () => {
+      console.log("close cursor")
       self.working = false;    
       setTimeout(()=> {
           self.analyse();
         }, 2000);
-    });
-  }
-}
-
-var config = jsonfile.readFileSync(file);
-var analyzer = new RequestAnalyzer(config);
-analyzer.analyse();
-
-process.on('uncaughtException', (err) => {
-  console.log(`Caught exception: ${err}`);
-  setTimeout(() => {
-    var analyzer = new RequestAnalyzer(config);
-    analyzer.analyse();
-  }, 5000);
-});
+    });*/
