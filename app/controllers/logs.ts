@@ -32,6 +32,10 @@ exports.index = (req, res) => {
     params.criteria["content"] = new RegExp(`${params.content}`);
   }
 
+  if (params.thread) {
+    params.criteria["thread"] = {$eq: params.thread.trim()};
+  }
+
   var Log = getLogModel(app, date);
   Log.list(params, (err, resp) => {
     if (err) {

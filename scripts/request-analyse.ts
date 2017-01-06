@@ -72,6 +72,10 @@ class RequestAnalyzer {
           setTimeout(()=> {
             self.findEndLog(log, 1);
           }, 3000);
+        } if (retry === 1) {
+          setTimeout(()=> {
+            self.findEndLog(log, 2);
+          }, 20000);
         } else {
           console.log("retry: ", retry);
           console.warn("can't find end log: ", moment(log.time).format('HH:mm:ss,SSS'), url);
