@@ -15,6 +15,13 @@ class RequestAnalyzer {
     this.checking = false;
   }
 
+  errorHandler: any = (err) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  }
+
   analyse() {
     if (this.working) {
       console.log("analyse is working, return");
@@ -52,13 +59,10 @@ class RequestAnalyzer {
       let ip = m[1], url = m[2];
       let maxEndTime = moment(doc.time).add(1, 'm');
 
+      //寻找请求的结束的标志
       let options = {content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
          thread: doc.thread, clazz: doc.clazz, time: {$gte: doc.time, $lte: maxEndTime}};
-      
       Log.findOne(options)
-      //Log.findOne({content: `---------------------------------------------${url} 处理结束---------------------------------------------`,
-        // thread: doc.thread, clazz: doc.clazz})
-        // .where("time").gte(doc.time).lte(maxEndTime)
          .sort({time: 1}).exec( (err, endLog) => {
         if (err) {
           console.log(err);
@@ -82,24 +86,14 @@ class RequestAnalyzer {
             app: this.app.name
           });
 
-          let request2 = new CappedRequest(request);
-          request.save(err => {
-            if (err) {
-              console.log("err: ", err);
-              return;
-            }
-            //console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
-            self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
-            //TODO: 每次插入这个请求会造成解析变慢
-            jsonfile.writeFileSync(file, self.app.toRequestJson());
-          });
+          //console.log(moment(doc.time).format('YYYY-MM-DD HH:mm:ss,SSS'), m[1], m[2]);
+          self.app.lastParseLog = moment(endLog.time, 'YYYY-MM-DD HH:mm:ss,SSS').format('YYYY-MM-DD HH:mm:ss,SSS');
+          //TODO: 每次插入这个请求会造成解析变慢，将解析位置同步到文件中去
+          jsonfile.writeFileSync(file, self.app.toRequestJson());
 
-          request2.save(err => {
-            if (err) {
-              console.log("err: ", err);
-              return;
-            }
-          });  
+          let request2 = new CappedRequest(request);
+          request.save(this.errorHandler);
+          request2.save(this.errorHandler);  
         } else {
           console.warn("can't find end log: ", moment(doc.time).format('HH:mm:ss,SSS'), url);
           console.log("options: ", JSON.stringify(options));
@@ -107,8 +101,7 @@ class RequestAnalyzer {
       });
     });
     cursor.on("close", () => {
-      self.working = false;     
-      //console.log("read db complete");
+      self.working = false;    
       setTimeout(()=> {
           self.analyse();
         }, 2000);
