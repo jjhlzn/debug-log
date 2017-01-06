@@ -23,7 +23,9 @@ function prepare() {
 
 function addSomeTime() {
   var result = 0;
-  for(var i = 0; i < 20000; i ++) {
+  
+  //for(var i = 0; i < 20000; i ++) {
+  for(var i = 0; i < 200; i ++) {
     result += Math.pow(2, i);
   }
   return  result;

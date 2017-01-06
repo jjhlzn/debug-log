@@ -1,3 +1,4 @@
+import { getLogModel } from '../app/models/logs';
 import { setInterval, setTimeout } from 'timers';
 /*!
  * log-debug
@@ -38,7 +39,7 @@ class LogAnalyzer {
   }
 
   analyse() {
-     var self = this;
+    var self = this;
     if (this.working) {
       console.log("analyse is working now...");
       return;
@@ -69,19 +70,23 @@ class LogAnalyzer {
         .on('data', function (data) {
           //console.log(`new log data: ${data}`);
           //console.log('--------------------------------------------------------------');
+          let startDate = moment();
           self.app.parsePosition += Buffer.byteLength(data, 'UTF-8');
           const logsArray = self.parser.parse(data, self.app);
-          //console.log(JSON.stringify(logsArray));
+          let endDate = moment();
+          
+          //console.log("time: ", endDate.diff(startDate, 'ms'));
+          
           parsedLines += logsArray[0].length;
           //console.log("parse log lines: ", parsedLines);
-          //console.log("parse complete");
+          //console.log("logs.count:", logsArray[0].length);
           self.saveLogs(logsArray[0]);
-          self.saveLogs(logsArray[1]);
+          //self.saveLogs(logsArray[1]);
         })
         .on('end', () => {
           jsonfile.writeFileSync(file, self.app.toJson());
           //console.log("parse log lines: ", parsedLines);
-          //console.log("read complete.");
+          console.log("read complete.");
           this.working = false;
           setTimeout(()=> {
             self.analyse();
@@ -98,9 +103,9 @@ class LogAnalyzer {
       log.save((err) => { 
         if (err) 
           console.error("err", err);
-        //console.log("save complete!");
+          //console.log("save complete!");
         });
-    });
+    }); 
   }
 
   /**
