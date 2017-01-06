@@ -9,7 +9,16 @@ var moment = require('moment');
 var logFilePath = "./log_root.txt";
 
 function prepare() {
-  fs.openSync(logFilePath, 'w');
+  fs.stat(logFilePath, function(err, stat) {
+    if(err == null) {
+        //console.log('File exists');
+    } else if(err.code == 'ENOENT') {
+        // file does not exist
+        fs.openSync(logFilePath, 'w');
+    } else {
+        console.log('Some other error: ', err.code);
+    }
+});
 }
 
 function addSomeTime() {
