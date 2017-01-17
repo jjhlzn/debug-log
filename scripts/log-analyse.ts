@@ -1,5 +1,6 @@
 import { getLogModel } from '../app/models/logs';
 import { setInterval, setTimeout } from 'timers';
+
 /*!
  * log-debug
  * Copyright(c) 2009-2016 JIN junhang
@@ -51,7 +52,7 @@ class LogAnalyzer {
     //每天的前30分钟，检查文件大小和解析的大小
     let now = moment();
     //console.log("now.hour() === 0 && now.minute() < 5: ", now.hour() === 0 && now.minute() < 5);
-    if (now.hour() === 0 && now.minute() < 30) {
+    if (now.hour() === 0 && now.minute() < 50) {
       let fileStat = fs.statSync(self.getLogFilePath());
       if (fileStat.size < this.app.parsePosition) {
         this.app.parsePosition = 0;
@@ -69,19 +70,11 @@ class LogAnalyzer {
     readStream
         .on('data', function (data) {
           //console.log(`new log data: ${data}`);
-          //console.log('--------------------------------------------------------------');
-          let startDate = moment();
           self.app.parsePosition += Buffer.byteLength(data, 'UTF-8');
           const logsArray = self.parser.parse(data, self.app);
-          let endDate = moment();
-          
-          //console.log("time: ", endDate.diff(startDate, 'ms'));
           
           parsedLines += logsArray[0].length;
-          //console.log("parse log lines: ", parsedLines);
-          //console.log("logs.count:", logsArray[0].length);
           self.saveLogs(logsArray[0]);
-          //self.saveLogs(logsArray[1]);
         })
         .on('end', () => {
           jsonfile.writeFileSync(file, self.app.toJson());

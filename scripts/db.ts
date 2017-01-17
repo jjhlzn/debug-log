@@ -4,7 +4,7 @@ var assert = require('assert');
 var moment = require('moment');
 
 var db = mongoose.connection;
-var dbURI = 'mongodb://114.215.170.159/debug_log';
+var dbURI = 'mongodb://211.140.151.220/debug_log';
 db.on('connecting', function() {
   console.log('connecting to MongoDB...');
 });

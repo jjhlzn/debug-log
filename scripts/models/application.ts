@@ -14,6 +14,7 @@ export class Application {
     }
     return 0;
   } 
+  
   set parsePosition(position:number) {
     this._parsePosition = position;
     //这里需要注意，如果parseTime存在跨天的情况，那么需要将_parsePosition设置为0
